@@ -73,18 +73,20 @@ form.classList.add('new-employee-form');
 const msg = document.createElement('div');
 
 msg.setAttribute('data-qa', 'notification');
-msg.classList.add('success');
+
+msg.classList.add('error');
 document.body.appendChild(msg);
 
 const nameLabel = document.createElement('label');
-const nameInput = document.createElement('input');
 
 nameLabel.textContent = 'Name:';
+
+const nameInput = document.createElement('input');
+
 nameInput.type = 'text';
 nameInput.name = 'name';
 nameInput.setAttribute('data-qa', 'name');
 nameInput.required = true;
-nameInput.setAttribute('minLength', '4');
 
 nameLabel.appendChild(nameInput);
 form.appendChild(nameLabel);
@@ -97,7 +99,6 @@ positionInput.type = 'text';
 positionInput.name = 'position';
 positionInput.setAttribute('data-qa', 'position');
 positionInput.required = true;
-positionInput.setAttribute('minLength', '4');
 
 positionLabel.appendChild(positionInput);
 form.appendChild(positionLabel);
@@ -115,6 +116,9 @@ const officeLabel = document.createElement('label');
 const selectOffice = document.createElement('select');
 
 officeLabel.textContent = 'Office:';
+selectOffice.name = 'office';
+selectOffice.setAttribute('data-qa', 'office');
+positionInput.required = true;
 
 cities.forEach((el) => {
   const optionOfficeFirst = document.createElement('option');
@@ -133,7 +137,7 @@ const ageInput = document.createElement('input');
 ageLabel.textContent = 'Age:';
 ageInput.type = 'number';
 ageInput.name = 'age';
-ageInput.setAttribute('data-ga', 'age');
+ageInput.setAttribute('data-qa', 'age');
 ageInput.required = true;
 ageLabel.appendChild(ageInput);
 form.appendChild(ageLabel);
@@ -158,59 +162,62 @@ form.appendChild(btn);
 
 document.body.appendChild(form);
 
-btn.addEventListener('click', function (el) {
-  el.preventDefault();
+form.addEventListener('submit', (e) => {
+  e.preventDefault();
+  msg.textContent = '';
+  msg.className = '';
 
-  const input = form.querySelectorAll('input, select');
-  const tr = document.createElement('tr');
+  const nam = form.elements.name.value;
+  const position = form.elements.position.value;
+  const office = form.elements.office.value;
+  const age = parseInt(form.elements.age.value, 10);
+  const salary = parseFloat(form.elements.salary.value);
 
-  input.forEach((e) => {
-    const td = document.createElement('td');
+  if (nam.length < 4) {
+    alertMessage('name must be at least 4 characters long', 'error');
 
-    if (e.textContent === 'Office:') {
-      td.textContent = e.value;
-      tr.appendChild(td);
-    } else if (e.name === 'age') {
-      if (Number(e.value) < 18 || Number(e.value) > 90) {
-        allertMesage('age must be betwen 18 - 90', 'error');
-      } else {
-        td.textContent = e.value;
-        tr.appendChild(td);
-      }
-    } else if (e.name === 'salary') {
-      if (!Number(e.value)) {
-        allertMesage('Must be nummber', 'error');
-      } else {
-        td.textContent = formatNumber(e.value);
-        tr.appendChild(td);
-      }
-    } else {
-      td.textContent = e.value;
-      tr.appendChild(td);
-    }
+    return;
+  }
+
+  if (age < 18 || age > 90) {
+    alertMessage('age must be betwen 18 - 90', 'error');
+
+    return;
+  }
+
+  if (isNaN(salary) || salary <= 0) {
+    alertMessage('Salary must be a positive number.', 'error');
+
+    return;
+  }
+
+  if (position.length < 3) {
+    alertMessage('position must be at least 3 characters long', 'error');
+
+    return;
+  }
+
+  const formattedSalary = salary.toLocaleString('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   });
 
-  if (!form.checkValidity()) {
-    form.reportValidity();
-  } else {
-    tableBody.appendChild(tr);
-    form.reset();
-    allertMesage('new employee is successfully added to the table', 'success');
-  }
+  const tbody = document.querySelector('table tbody');
+  const row = tbody.insertRow();
+
+  row.insertCell().textContent = nam;
+  row.insertCell().textContent = position;
+  row.insertCell().textContent = office;
+  row.insertCell().textContent = age;
+  row.insertCell().textContent = formattedSalary;
+
+  alertMessage('New employee added to the table.', 'success');
+  form.reset();
 });
 
-function formatNumber(message) {
-  const words = message.split('').reverse();
-  const result = [];
-
-  for (let i = 0; i < words.length; i += 3) {
-    result.push(words.slice(i, i + 3).join(''));
-  }
-
-  return '$' + result.reverse().join(',');
-}
-
-function allertMesage(mesage, type) {
+function alertMessage(mesage, type) {
   msg.textContent = mesage;
   msg.className = type;
 }
