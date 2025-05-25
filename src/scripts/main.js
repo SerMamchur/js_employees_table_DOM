@@ -54,16 +54,13 @@ headers.forEach((header, index) => {
   });
 });
 
-rows.forEach((row) => {
-  row.addEventListener('click', function (el) {
-    rows.forEach((r) => {
-      r.classList.remove('active');
-    });
+tableBody.addEventListener('click', function (el) {
+  const clickedRow = el.target.closest('tr');
 
-    if (el.target) {
-      this.classList.add('active');
-    }
+  document.querySelectorAll('tbody tr').forEach((r) => {
+    r.classList.remove('active');
   });
+  clickedRow.classList.add('active');
 });
 
 const form = document.createElement('form');
@@ -212,16 +209,6 @@ form.addEventListener('submit', (e) => {
   row.insertCell().textContent = office;
   row.insertCell().textContent = age;
   row.insertCell().textContent = formattedSalary;
-
-  row.addEventListener('click', function (el) {
-    rows.forEach((r) => {
-      r.classList.remove('active');
-    });
-
-    if (el.target) {
-      this.classList.add('active');
-    }
-  });
 
   alertMessage('New employee added to the table.', 'success');
   form.reset();
