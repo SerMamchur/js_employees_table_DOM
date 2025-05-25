@@ -28,9 +28,9 @@ headers.forEach((header, index) => {
         return sortNumber(aCell, bCell);
       } else {
         if (sortDirection[index] === 'asc') {
-          return bCell.localeCompare(aCell);
-        } else {
           return aCell.localeCompare(bCell);
+        } else {
+          return bCell.localeCompare(aCell);
         }
       }
     });
@@ -118,7 +118,7 @@ const selectOffice = document.createElement('select');
 officeLabel.textContent = 'Office:';
 selectOffice.name = 'office';
 selectOffice.setAttribute('data-qa', 'office');
-positionInput.required = true;
+selectOffice.required = true;
 
 cities.forEach((el) => {
   const optionOfficeFirst = document.createElement('option');
@@ -212,6 +212,16 @@ form.addEventListener('submit', (e) => {
   row.insertCell().textContent = office;
   row.insertCell().textContent = age;
   row.insertCell().textContent = formattedSalary;
+
+  row.addEventListener('click', function (el) {
+    rows.forEach((r) => {
+      r.classList.remove('active');
+    });
+
+    if (el.target) {
+      this.classList.add('active');
+    }
+  });
 
   alertMessage('New employee added to the table.', 'success');
   form.reset();
